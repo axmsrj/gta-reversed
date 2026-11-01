@@ -24,8 +24,9 @@
   `IDLE_stance` while stopped. The initial stance frame anchors the root
   orientation, with a short spherical rotation blend at transitions. Child bone
   positions come from inverse skin matrices and their rotations from the clip.
-  Animation root translation is suppressed because the controller owns
-  movement, and visual vertices are grounded each frame. This still does not
+  Forward walk/run root travel is extracted into the controller; local root X/Z
+  motion and idle root translation remain in the skin pose. Moving vertices are
+  still grounded from their lowest point each frame. This still does not
   reproduce the original ped animation system or foot contact. Controller
   travel follows successive root samples from the loaded walk and run clips.
   The original player shoulder matrix adjustment is applied. Turn rate, clip

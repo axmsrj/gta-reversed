@@ -279,10 +279,11 @@ std::vector<rw::Matrix> SkinMatrices(const SkinCapture& skin,
                 local.rotate(rw::mult(rw::inv(q0),q),rw::COMBINEPRECONCAT);
                 const auto idle=std::find_if(idlePose.begin(),idlePose.end(),
                     [&](const auto& candidate) { return candidate.boneTag==bone.boneTag; });
+                // Walk/run extract forward (Y) travel, but retain root X sway and Z.
+                local.pos.x+=bone.translation[0]-initial->translation[0];
+                local.pos.z+=bone.translation[2]-initial->translation[2];
                 if (idle!=idlePose.end()) {
-                    local.pos.x+=idleWeight*(idle->translation[0]-initial->translation[0]);
                     local.pos.y+=idleWeight*(idle->translation[1]-initial->translation[1]);
-                    local.pos.z+=idleWeight*(idle->translation[2]-initial->translation[2]);
                 }
             } else {
                 local.rotate(q,rw::COMBINEREPLACE);

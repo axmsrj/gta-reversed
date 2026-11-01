@@ -173,6 +173,19 @@ roughly 0.01 units in X/Y across its 1.5-second cycle. Native skinning now
 applies that root movement during idle, relative to the first sample, while
 continuing to extract controller travel from walk/run.
 
+A subsequent pass confirmed the same MD5 and decompiled the ped root callbacks
+at 0x4D1680 and 0x4D1A50. These are the velocity-extracting skinned callbacks
+selected for a ped root; 0x4D2B90 is the separate non-extracting skinned path.
+The source `RpAnimBlendClumpInit` sets root `HasVelocity`, and the player walk
+and run association flags extract forward Y travel while retaining local X
+and Z root motion. Native skinning now applies X/Z from the blended original
+root samples and extracts Y through the controller. In a 100-frame diagnostic
+idle run, the centers of vertices weighted to the two shoe bones moved about
+0.9 cm in X, 1.8–2.0 cm in Y and 0.9 cm in Z. With idle root translation
+temporarily disabled, Y movement was about 0.9–1.0 cm and Z under 0.1 cm.
+The diagnostic was removed after measurement. These values do not prove
+original visual parity or eliminate perceived foot sliding.
+
 ## Targeted streaming inspection
 
 A read-only pass in `GTASanAndreasNative` confirmed the same executable MD5,

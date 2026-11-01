@@ -278,6 +278,13 @@ Commands: native/README.md. Apple Clang 21, CMake 4.4.3, Ninja 1.13.2.
   about 0.01 units of root X/Y motion that native skinning previously discarded.
   The port now applies that movement during idle and retains controller-owned
   travel for walking and running. Visual foot-contact parity remains unverified.
+- A 100-frame real-asset idle probe measured roughly 1–2 cm of shoe-vertex
+  movement with the original idle root translation; a temporary no-root
+  comparison reduced Y movement to roughly 1 cm but omitted source behavior.
+  The temporary probe was removed. Dedicated Ghidra decompilation of ped root
+  callbacks 0x4D1680/0x4D1A50 and source flags established that walk/run
+  extract Y travel while retaining local X and Z root motion. Native skinning
+  now keeps those original components. Visual foot-contact parity is still open.
 - A cursor-free GUI diagnostic exposed that reading Option/ALT through the
   global modifier snapshot kept the running gait. Input now records the
   modifier from key and flags-change events. A one-second ALT+W press advanced
