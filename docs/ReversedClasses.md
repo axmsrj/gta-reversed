@@ -1,17 +1,17 @@
 # Reimplementation progress (*): 92%
 This file is updated automatically every time the `hooks.json` file is updated (which happens every time there are changes to hooks made by a commit), and shows the current progress of reversed categories in the project.
 
-Last update was at Oct 25, 2026 at 13:55:30 UTC
-(Triggered by commit [08a10b0a](https://github.com/gta-reversed/gta-reversed/commit/08a10b0a88b9da61dd5a4f7e5753e92a03008379))
+Last update was at Oct 30, 2026 at 01:29:31 UTC
+(Triggered by commit [cb66f23d](https://github.com/gta-reversed/gta-reversed/commit/cb66f23d52caeb0fcc159fb7dbd2839a6240e3a6))
 
 ## (*) Disclaimers
 **The progress** is based on the number of functions we have documented and reimplemented, so it might not completely reflect the actual progress, it's meant to be a rough estimate.
 
 **The percentages and the number of categories** shown here may not be completely accurate, because not all categories and functions are documented yet.
 
-## Stats (7622 out of 8324 functions done in 722 categories)
+## Stats (7661 out of 8336 functions done in 722 categories)
 
-#### Completely reversed categories (600/722) [83%]
+#### Completely reversed categories (605/722) [84%]
 
 <details>
 <summary>See list of categories</summary>
@@ -198,6 +198,7 @@ Last update was at Oct 25, 2026 at 13:55:30 UTC
 - FxSystemBP_c (10)<br />
 - FxSphere_c (4)<br />
 - FxMemoryPool_c (5)<br />
+- FxInfoManager_c (5)<br />
 - FxManager_c (25)<br />
 - FxEmitterPrt_c (1)<br />
 - Fx_c (8)<br />
@@ -341,6 +342,7 @@ Last update was at Oct 25, 2026 at 13:55:30 UTC
 - CTaskComplexGetOnBoatSeat (8)<br />
 - CTaskComplexGoToBoatSteeringWheel (6)<br />
 - CTaskComplexGoToCarDoorAndStandStill (11)<br />
+- CTaskComplexGoToPointAiming (8)<br />
 - CTaskComplexGoToPointShooting (3)<br />
 - CTaskComplexHitByGunResponse (8)<br />
 - CTaskComplexHitResponse (7)<br />
@@ -580,7 +582,7 @@ Last update was at Oct 25, 2026 at 13:55:30 UTC
 - CAEStreamThread (14)<br />
 - CAudioEngine (82)<br />
 - CAudioZones (5)<br />
-- CAECollisionAudioEntity (17)<br />
+- CAECollisionAudioEntity (18)<br />
 - CAEDoorAudioEntity (6)<br />
 - CAEExplosionAudioEntity (3)<br />
 - CAEFireAudioEntity (7)<br />
@@ -592,6 +594,9 @@ Last update was at Oct 25, 2026 at 13:55:30 UTC
 - CAEWaterCannonAudioEntity (7)<br />
 - CAEWeatherAudioEntity (5)<br />
 - CAEAudioChannel (12)<br />
+- CAEAudioHardware (55)<br />
+- CAEStaticChannel (8)<br />
+- CAEStreamingChannel (24)<br />
 - CAEBankLoader (6)<br />
 - CAEDataStream (20)<br />
 - CAEStreamTransformer (2)<br />
@@ -618,7 +623,7 @@ Last update was at Oct 25, 2026 at 13:55:30 UTC
 
 </details>
 
-#### Partially reversed categories (114/722) [16%]
+#### Partially reversed categories (109/722) [15%]
 
 <details>
 <summary>See list of categories</summary>
@@ -666,7 +671,6 @@ Last update was at Oct 25, 2026 at 13:55:30 UTC
 - CCam (20/45) [44%]<br />
 - FxSystem_c (31/35) [89%]<br />
 - FxPrimBP_c (1/2) [50%]<br />
-- FxInfoManager_c (4/5) [80%]<br />
 - FxEmitterBP_c (2/9) [22%]<br />
 - CPed (137/145) [94%]<br />
 - CPlayerPed (50/65) [77%]<br />
@@ -685,7 +689,6 @@ Last update was at Oct 25, 2026 at 13:55:30 UTC
 - CTaskComplexDestroyCarArmed (9/10) [90%]<br />
 - CTaskComplexGangJoinRespond (2/7) [29%]<br />
 - CTaskComplexGoToAttractor (2/5) [40%]<br />
-- CTaskComplexGoToPointAiming (6/8) [75%]<br />
 - CTaskComplexGoToPointAndStandStillAndAchieveHeading (7/8) [88%]<br />
 - CTaskComplexGoToPointAnyMeans (3/7) [43%]<br />
 - CTaskComplexGotoDoorAndOpen (3/7) [43%]<br />
@@ -703,7 +706,7 @@ Last update was at Oct 25, 2026 at 13:55:30 UTC
 - CTaskUtilityLineUpPedWithCar (2/5) [40%]<br />
 - CTaskSimpleJetPack (13/14) [93%]<br />
 - CTaskComplexPlayHandSignalAnim (3/9) [33%]<br />
-- CTaskComplexSunbathe (2/8) [25%]<br />
+- CTaskComplexSunbathe (3/8) [38%]<br />
 - CTaskComplexKillPedOnFoot (1/2) [50%]<br />
 - CTaskComplexWalkRoundCar (9/13) [69%]<br />
 - CTaskComplexKillPedFromBoat (2/7) [29%]<br />
@@ -718,21 +721,18 @@ Last update was at Oct 25, 2026 at 13:55:30 UTC
 - CAEFrontendAudioEntity (4/6) [67%]<br />
 - CAEPedAudioEntity (16/20) [80%]<br />
 - CAEPoliceScannerAudioEntity (13/17) [76%]<br />
-- CAEScriptAudioEntity (8/19) [42%]<br />
-- CAEVehicleAudioEntity (102/106) [96%]<br />
-- CAEAudioHardware (54/55) [98%]<br />
-- CAEStaticChannel (7/8) [88%]<br />
-- CAEStreamingChannel (21/24) [88%]<br />
+- CAEScriptAudioEntity (17/19) [89%]<br />
+- CAEVehicleAudioEntity (103/106) [97%]<br />
 - CAEAmbienceTrackManager (6/7) [86%]<br />
-- CAERadioTrackManager (29/43) [67%]<br />
+- CAERadioTrackManager (34/43) [79%]<br />
 - CBike (22/40) [55%]<br />
 - CBmx (7/10) [70%]<br />
 - CMonsterTruck (5/11) [45%]<br />
 - CPlane (14/23) [61%]<br />
 - CQuadBike (11/12) [92%]<br />
-- CTrain (21/41) [51%]<br />
-- CVehicle (145/149) [97%]<br />
-- InteriorGroup_c (2/24) [8%]<br />
+- CTrain (22/41) [54%]<br />
+- CVehicle (157/160) [98%]<br />
+- InteriorGroup_c (3/24) [12%]<br />
 - CRunningScript (24/39) [62%]<br />
 - CTheScripts (68/69) [99%]<br />
 - CScripted2dEffects (4/5) [80%]<br />
