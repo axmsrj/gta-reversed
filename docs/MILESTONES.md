@@ -272,6 +272,12 @@ Commands: native/README.md. Apple Clang 21, CMake 4.4.3, Ninja 1.13.2.
   sampled without bone overrides; idle uses a stable initial grounding offset
   instead of shifting the entire model to its lowest animated vertex each frame.
   Original foot placement on varied ground remains under analysis.
+- A fresh dedicated-project Ghidra check of 0x4D2B90 and the corresponding
+  `RpAnimBlend` source showed that idle root translation is retained by the
+  original animation update. A probe of the real `IDLE_stance` clip measured
+  about 0.01 units of root X/Y motion that native skinning previously discarded.
+  The port now applies that movement during idle and retains controller-owned
+  travel for walking and running. Visual foot-contact parity remains unverified.
 - A cursor-free GUI diagnostic exposed that reading Option/ALT through the
   global modifier snapshot kept the running gait. Input now records the
   modifier from key and flags-change events. A one-second ALT+W press advanced

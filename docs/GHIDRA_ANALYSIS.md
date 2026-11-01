@@ -164,6 +164,15 @@ lowest animated vertex on every frame. Original foot placement on uneven
 ground still needs to be ported. Raw ignored output:
 `local/ghidra/findings/idle_feet_headless.txt`.
 
+A fresh read-only run of the same project on 2026-11-01 confirmed the executable
+MD5 and decompiled animation frame update at 0x4D2B90. The source counterpart
+in `Plugins/RpAnimBlendPlugin/RpAnimBlend.cpp` applies root-node translation
+when an association does not extract velocity. `ANIM_ID_IDLE` has no velocity
+extraction flag, whereas walk and run do. The real `IDLE_stance` root moves
+roughly 0.01 units in X/Y across its 1.5-second cycle. Native skinning now
+applies that root movement during idle, relative to the first sample, while
+continuing to extract controller travel from walk/run.
+
 ## Targeted streaming inspection
 
 A read-only pass in `GTASanAndreasNative` confirmed the same executable MD5,

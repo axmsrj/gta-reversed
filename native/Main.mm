@@ -260,7 +260,9 @@ void HalfShoulderX(rw::Matrix& matrix) {
 
 std::vector<rw::Matrix> SkinMatrices(const SkinCapture& skin,
                                     const std::vector<gtasa::animation::BonePose>& pose,
-                                    const std::vector<gtasa::animation::BonePose>& stancePose) {
+                                    const std::vector<gtasa::animation::BonePose>& stancePose,
+                                    const std::vector<gtasa::animation::BonePose>& idlePose={},
+                                    float idleWeight=0.0f) {
     std::vector<rw::Matrix> world(skin.boneTags.size());
     std::vector<rw::Matrix> result(skin.boneTags.size());
     for (std::size_t i=0;i<world.size();++i) {
@@ -275,6 +277,13 @@ std::vector<rw::Matrix> SkinMatrices(const SkinCapture& skin,
                 const rw::Quat q0{initial->rotation[0],initial->rotation[1],
                                   initial->rotation[2],initial->rotation[3]};
                 local.rotate(rw::mult(rw::inv(q0),q),rw::COMBINEPRECONCAT);
+                const auto idle=std::find_if(idlePose.begin(),idlePose.end(),
+                    [&](const auto& candidate) { return candidate.boneTag==bone.boneTag; });
+                if (idle!=idlePose.end()) {
+                    local.pos.x+=idleWeight*(idle->translation[0]-initial->translation[0]);
+                    local.pos.y+=idleWeight*(idle->translation[1]-initial->translation[1]);
+                    local.pos.z+=idleWeight*(idle->translation[2]-initial->translation[2]);
+                }
             } else {
                 local.rotate(q,rw::COMBINEREPLACE);
                 local.pos=skin.bonePositions[i];
@@ -966,7 +975,8 @@ int main(int argc, const char* argv[]) {
             if (!pose.empty()) {
                 skinMatrices.reserve(playerSkins.size());
                 for (const auto& skin : playerSkins)
-                    skinMatrices.push_back(SkinMatrices(skin,pose,stanceBasePose));
+                    skinMatrices.push_back(SkinMatrices(skin,pose,stanceBasePose,idlePose,
+                                                        1.0f-walkBlend));
             }
             float minimumSkinnedZ=std::numeric_limits<float>::infinity();
             for (std::size_t i=playerVertexFirst;i<model.vertices.size();++i) {
