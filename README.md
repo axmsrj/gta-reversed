@@ -1,3 +1,5 @@
+> Apple Silicon native port work: [build instructions and current limitations](native/README.md).
+
 ## gtasa-reversed [![Build Status](https://github.com/gta-reversed/gta-reversed/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/gta-reversed/gta-reversed/actions?query=workflow%3ABuild)
 
 A project to reverse Grand Theft Auto San Andreas completely, and to rewrite and document every function.
