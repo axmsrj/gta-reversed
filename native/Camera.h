@@ -10,6 +10,10 @@ struct ViewControls {
     float panX{}, panY{};
 };
 
+inline float FollowPedDistance(float elevation) {
+    return 1.7f+2.0f*std::cos(elevation);
+}
+
 struct ModelBounds {
     std::array<float,3> minimum{INFINITY,INFINITY,INFINITY};
     std::array<float,3> maximum{-INFINITY,-INFINITY,-INFINITY};
@@ -41,13 +45,16 @@ inline std::array<float,17> ProjectionParameters(const ModelBounds& bounds,
         const auto screen=project((*worldCenter)[0],(*worldCenter)[1],(*worldCenter)[2]);
         centerX=screen[0]; centerY=screen[1];
         scale=view.zoom*1.55f/((*worldCenter)[3]*3.0f);
-        const float distance=(closeCamera ? 5.0f : (*worldCenter)[3]*3.5f)/view.zoom;
-        const float focal=closeCamera ? 1.55f : 1.55f*3.5f/3.0f;
+        const float distance=(closeCamera ? FollowPedDistance(view.elevation) :
+                              (*worldCenter)[3]*3.5f)/view.zoom;
+        const float focal=closeCamera ? 1.428148f : 1.55f*3.5f/3.0f;
+        const float focalX=closeCamera ? focal : focal/std::max(0.1f,aspect);
+        const float focalY=closeCamera ? focal*aspect : focal;
         const float nearPlane=0.1f;
         const float farPlane=std::max(1000.0f,screen[2]+distance-minD+100.0f);
         return {cy,sy,ce,se,centerX,centerY,scale,view.panX,view.panY,
                 maxD,1.0f/std::max(0.001f,maxD-minD),1.0f,
-                screen[2]+distance,focal/std::max(0.1f,aspect),focal,nearPlane,farPlane};
+                screen[2]+distance,focalX,focalY,nearPlane,farPlane};
     }
     return {cy,sy,ce,se,centerX,centerY,scale,view.panX,view.panY,
             maxD,1.0f/std::max(0.001f,maxD-minD),0.0f,0.0f,0.0f,0.0f,0.1f,1000.0f};

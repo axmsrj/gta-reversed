@@ -15,6 +15,14 @@ ModelBounds Box(float x0,float y0,float z0,float x1,float y1,float z1) {
 }
 
 int main() {
+    bool ok=true;
+    ok&=Expect(std::abs(FollowPedDistance(0.22f)-3.6518f)<0.001f,
+               "original follow ped radius at startup pitch");
+    const auto follow=ProjectionParameters(Box(-1,-1,-1,1,1,1),
+        ViewControls{},std::array<float,4>{0,0,0,80},1.6f,true);
+    ok&=Expect(std::abs(follow[13]-1.428148f)<0.00001f &&
+               std::abs(follow[14]-1.428148f*1.6f)<0.00001f,
+               "follow ped uses horizontal 70 degree field of view");
     std::array<float,17> perspective{};
     perspective[0]=1.0f;
     perspective[2]=1.0f;
@@ -23,7 +31,6 @@ int main() {
     perspective[13]=perspective[14]=1.0f;
     perspective[15]=0.1f;
     perspective[16]=10.0f;
-    bool ok=true;
     ok&=Expect(VisibleBounds(Box(-1,-1,-1,1,1,1),perspective),"perspective center");
     ok&=Expect(!VisibleBounds(Box(7,0,0,8,1,1),perspective),"perspective right");
     ok&=Expect(!VisibleBounds(Box(0,0,7,1,1,8),perspective),"perspective top");

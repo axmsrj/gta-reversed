@@ -263,6 +263,15 @@ Commands: native/README.md. Apple Clang 21, CMake 4.4.3, Ninja 1.13.2.
   the first automated ALT interaction did not complete; the later diagnostic
   below verified walk versus run travel. Exact original camera timing remains
   unverified.
+- A further read-only Ghidra pass on the dedicated project checked mouse follow
+  camera 0x50F970, original camera parameters, animation 0x4D2B90 and ped foot
+  pitch 0x5FE0E0 against the matching executable MD5. Native play now uses the
+  observed 70-degree horizontal FOV, startup pitch, focus height and follow
+  distance. A/D no longer change camera yaw, including the preview key fallback;
+  only captured mouse motion changes yaw. The original `IDLE_stance` pose is
+  sampled without bone overrides; idle uses a stable initial grounding offset
+  instead of shifting the entire model to its lowest animated vertex each frame.
+  Original foot placement on varied ground remains under analysis.
 - A cursor-free GUI diagnostic exposed that reading Option/ALT through the
   global modifier snapshot kept the running gait. Input now records the
   modifier from key and flags-change events. A one-second ALT+W press advanced

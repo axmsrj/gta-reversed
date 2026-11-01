@@ -30,7 +30,10 @@
   travel follows successive root samples from the loaded walk and run clips.
   The original player shoulder matrix adjustment is applied. Turn rate, clip
   blending and mouse camera follow are bounded adaptations; exact GTA timing,
-  camera collision and visual parity are still unverified. ALT+W and W
+  camera collision and visual parity are still unverified. Idle now avoids
+  per-frame whole-body grounding changes, but original foot placement on
+  uneven ground and visual parity still need verification.
+  ALT+W and W
   produce distinct walk and run travel in a GUI diagnostic. Other clips and
   runtime clothing swaps are not implemented. The standalone player preview
   remains static.

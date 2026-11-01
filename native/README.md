@@ -79,8 +79,10 @@ white untextured materials use provisional tints; this is still a model viewer.
 to camera yaw, and the camera follows CJ. `run_player` drives ordinary movement;
 hold Option/ALT for `WALK_player`. CJ turns toward travel over time. The camera
 starts behind CJ, the captured mouse rotates it, Escape releases the cursor,
-and a click recaptures it. After mouse orbit stops, forward movement gradually
-brings the camera behind CJ again.
+and a click recaptures it. A/D turn CJ while the camera keeps its angle and
+follows his position.
+Idle keeps the original `IDLE_stance` bone animation and a stable grounding
+offset; the port still needs original foot placement on varied ground.
 `--auto-walk` drives the same controller along the road for visual diagnostics.
 Ground and basic COL box/sphere/triangle checks constrain movement. The volume
 probe can test a specific path against nearby instances of one model. Idle

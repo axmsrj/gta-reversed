@@ -143,6 +143,27 @@ and its accesses to bone IDs 302 and 301; the readable matrix and Euler-angle
 sequence is in `source/game_sa/Entity/Ped/Ped.cpp::ShoulderBoneRotation`.
 Raw ignored output: `local/ghidra/findings/shoulder_headless.txt`.
 
+## Follow camera and idle foot inspection
+
+A further read-only pass in `GTASanAndreasNative` confirmed the same executable
+MD5, architecture and image base. `CCam::Process_FollowPedWithMouse` at 0x50F970
+uses a 0.8 target height, initial pitch -0.22 radians and a camera distance
+of 1.7 + 2.0 cos(pitch). The readable `source/game_sa/Camera.cpp` confirms a
+70-degree horizontal field of view. The native play camera now uses those
+parameters. Movement keys do not alter its yaw; captured mouse motion does.
+The original camera's collision and full transition logic remain unported.
+Raw ignored output: `local/ghidra/findings/camera_constants_headless.txt`.
+
+The same project was used to inspect animation at 0x4D2B90 and
+`CPedIK::PitchForSlope` at 0x5FE0E0, with source comparison in
+`source/game_sa/PedIK.cpp`. Samples from the supplied `IDLE_stance` clip move
+leg bones by about 0.5 to 1.2 degrees while the upper body also moves. Native
+play now leaves every original clip bone intact and holds its initial idle
+grounding offset instead of translating the whole mesh according to the
+lowest animated vertex on every frame. Original foot placement on uneven
+ground still needs to be ported. Raw ignored output:
+`local/ghidra/findings/idle_feet_headless.txt`.
+
 ## Targeted streaming inspection
 
 A read-only pass in `GTASanAndreasNative` confirmed the same executable MD5,

@@ -755,6 +755,7 @@ int main(int argc, const char* argv[]) {
         float runSeconds{};
         float idleSeconds{};
         float walkBlend{};
+        std::optional<float> idleGrounding;
         float runBlend{1.0f};
         bool playerWalking{};
         std::size_t playerVertexFirst{},playerGroupFirst{};
@@ -848,7 +849,7 @@ int main(int argc, const char* argv[]) {
                         player.emplace(std::array<float,3>{focus[0],focus[1],
                                        ground->height-bounds.minimum[2]},bounds.minimum[2],
                                        *walkingSpeed);
-                        (*options.worldCenter)[2]=player->Position()[2]-0.2f;
+                        (*options.worldCenter)[2]=player->Position()[2]+0.8f;
                         appendPlayer(model);
                     }
                     options.model=options.play ? "CJ in world" : "World preview";
@@ -887,7 +888,7 @@ int main(int argc, const char* argv[]) {
         ViewControls viewControls;
         if (options.play) {
             viewControls.yaw=-1.57079632679f; // initial camera behind +X facing CJ
-            viewControls.panY=-0.20f;
+            viewControls.elevation=0.22f;
         }
         ModelBounds modelBounds;
         std::vector<ModelBounds> groupBounds;
@@ -999,7 +1000,10 @@ int main(int argc, const char* argv[]) {
                 minimumSkinnedZ=std::min(minimumSkinnedZ,vertex.z);
             }
             if (std::isfinite(minimumSkinnedZ)) {
-                const float grounding=position[2]+playerBindMinZ-minimumSkinnedZ;
+                const float sampledGrounding=position[2]+playerBindMinZ-minimumSkinnedZ;
+                if (!idleGrounding) idleGrounding=sampledGrounding;
+                const float grounding=*idleGrounding*(1.0f-walkBlend)+
+                                      sampledGrounding*walkBlend;
                 for (std::size_t i=playerVertexFirst;i<model.vertices.size();++i) {
                     model.vertices[i].z+=grounding;
                     gpu[i]=model.vertices[i];
@@ -1119,7 +1123,6 @@ int main(int argc, const char* argv[]) {
         bool walkHeld=false;
         bool mouseCaptured=false;
         bool captureRequested=options.play;
-        float cameraOrbitHold{};
 #ifdef GTASA_HAS_LIBRW
         std::future<Model> pendingWorld;
         std::optional<std::array<float,4>> loadingCenter;
@@ -1144,8 +1147,8 @@ int main(int argc, const char* argv[]) {
                     if (mouseCaptured && event.type==NSEventTypeMouseMoved) {
                         viewControls.yaw+=float(event.deltaX)*0.0035f;
                         viewControls.elevation=std::clamp(
-                            viewControls.elevation-float(event.deltaY)*0.0035f,0.08f,1.25f);
-                        cameraOrbitHold=1.2f;
+                            viewControls.elevation-float(event.deltaY)*0.0035f,
+                            -0.785398f,1.562f);
                         cameraDirty=true;
                         continue;
                     }
@@ -1172,7 +1175,7 @@ int main(int argc, const char* argv[]) {
                             continue;
                         }
                     }
-                    if (pipeline && event.type==NSEventTypeKeyDown) {
+                    if (pipeline && !options.play && event.type==NSEventTypeKeyDown) {
                         NSString* characters=event.charactersIgnoringModifiers;
                         const unichar key=characters.length ? [characters characterAtIndex:0] : 0;
                         bool handled=true;
@@ -1191,8 +1194,6 @@ int main(int argc, const char* argv[]) {
                         case 'k': viewControls.panY-=0.08f; break;
                         case 'r':
                             viewControls=ViewControls{};
-                            if (options.play && player)
-                                viewControls.yaw=player->Heading()-1.57079632679f;
                             break;
                         default: handled=false; break;
                         }
@@ -1215,7 +1216,6 @@ int main(int argc, const char* argv[]) {
                 const auto frameTime=std::chrono::steady_clock::now();
                 const auto timing=gameTimer.Tick(frameTime);
                 const float elapsed=static_cast<float>(std::min(timing.realSeconds,0.05));
-                cameraOrbitHold=std::max(0.0f,cameraOrbitHold-elapsed);
                 const auto movementStart=std::chrono::steady_clock::now();
                 if (!window.isKeyWindow) {
                     movementHeld.fill(false);
@@ -1262,7 +1262,7 @@ int main(int argc, const char* argv[]) {
                                 const auto& position=player->Position();
                                 (*options.worldCenter)[0]=position[0];
                                 (*options.worldCenter)[1]=position[1];
-                                (*options.worldCenter)[2]=position[2]-0.2f;
+                                (*options.worldCenter)[2]=position[2]+0.8f;
                                 cameraDirty=true;
                             }
                         } else
@@ -1283,14 +1283,6 @@ int main(int argc, const char* argv[]) {
                     idleSeconds+=elapsed;
                     walkBlend=std::clamp(walkBlend+
                         (playerWalking ? 1.0f : -1.0f)*elapsed/0.18f,0.0f,1.0f);
-                    if (playerWalking && movementHeld[3] &&
-                        !movementHeld[0] && !movementHeld[1] && cameraOrbitHold==0.0f) {
-                        const float desired=player->Heading()-1.57079632679f;
-                        const float delta=std::remainder(desired-viewControls.yaw,
-                                                           6.28318530718f);
-                        viewControls.yaw+=std::clamp(delta,-2.0f*elapsed,2.0f*elapsed);
-                        cameraDirty=true;
-                    }
                 }
 #endif
                 const auto movementEnd=std::chrono::steady_clock::now();
