@@ -49,10 +49,11 @@ The probe uses pinned librw with its NULL backend to parse a real DFF/TXD pair.
 It loads `local/librw` when present; CMake fetches the pinned commit otherwise.
 The probe does not render the model.
 The world probe combines text IDE/IPL files from `gta.dat` with binary `bnry` IPL
-entries from `gta3.img`. `--world-center` displays up to 64 static pieces, 32
-nearby props and 16 LOD substitutes. Geometry-bounds selection with a 160-unit
-candidate margin loads 95 objects around Grove Street at radius 80
-(17,317 triangles, 157 textures).
+entries from `gta3.img`. `--world-center` selects nearby terrain, detailed
+objects and props without fixed per-category caps, then uses LOD substitutes
+where detail is unavailable. Geometry-bounds selection uses a 160-unit
+candidate margin; Grove Street at radius 80 loads 159 objects
+(30,586 triangles, 194 textures with CJ).
 The preview uses a perspective camera; standalone model viewing remains orthographic.
 The world process also loads collision meshes from `gta3.img` and samples real
 ground height at the focus. In `--play`, it also constrains CJ's basic walking.

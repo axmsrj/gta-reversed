@@ -143,6 +143,18 @@ and its accesses to bone IDs 302 and 301; the readable matrix and Euler-angle
 sequence is in `source/game_sa/Entity/Ped/Ped.cpp::ShoulderBoneRotation`.
 Raw ignored output: `local/ghidra/findings/shoulder_headless.txt`.
 
+## Targeted streaming inspection
+
+A read-only pass in `GTASanAndreasNative` confirmed the same executable MD5,
+architecture and image base before decompiling 0x40E670 and 0x40D3F0.
+At 0x40E670, the executable requests detailed models when the camera is near
+the ground and LODs when it is high; it then services requests and loads
+collision and IPL data around the player. The readable source counterpart is
+`CStreaming::Update` in `source/game_sa/Streaming.cpp`. The native renderer's
+world-region rebuild remains a coarse adaptation, but fixed caps on nearby
+objects are not part of this original request path. Raw ignored output:
+`local/ghidra/findings/streaming_headless.txt`.
+
 ## Remaining investigations
 
 Exact executable release/patch provenance; complete RW engine open/start and

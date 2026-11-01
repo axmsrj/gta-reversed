@@ -37,7 +37,8 @@
 - IDE draw distances and flags are parsed but not yet applied to LOD and object
   selection; IPL LOD relationships are resolved, duplicate targets suppressed and
   unrepresented targets can fill gaps. GTA distance transitions are not implemented.
-  The preview still uses provisional model-ID buckets and object caps.
+  The preview still uses provisional model-ID buckets and bounded outside-region
+  probes, though fixed caps on nearby objects were removed.
 - The world preview has a provisional perspective camera with near/far clipping;
   standalone models keep an orthographic view. GTA camera follow behavior and
   world-object-level visibility selection are not implemented. `--play` follows

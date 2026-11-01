@@ -270,5 +270,13 @@ Commands: native/README.md. Apple Clang 21, CMake 4.4.3, Ninja 1.13.2.
   advancing it to 2497. The diagnostic run ended at its smoke time limit;
   the separate 45-frame real-asset Metal smoke exited 0.
 - GUI smoke initially aborted under restricted sandbox; passed with WindowServer access.
+- Removed fixed limits on nearby terrain, detailed objects, props and fallback
+  LODs; bounded probes remain for objects outside the region whose geometry
+  might reach it. Grove Street at radius 80 loaded 159 objects (54 static,
+  8 detail, 96 props, 1 LOD), up from 95 with the 32-prop cap, and rendered
+  30,586 triangles across three Metal frames with exit 0. A second region at
+  (2601,-1503) loaded 51 objects and rendered 12,702 triangles across three
+  frames with exit 0. All 11 non-GUI tests passed. This improves completeness
+  but does not replace coarse region rebuilds with per-object streaming.
 
 The application is a development bootstrap; it does not run GTA gameplay.
