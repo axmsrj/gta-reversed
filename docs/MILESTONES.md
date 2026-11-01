@@ -250,6 +250,18 @@ Commands: native/README.md. Apple Clang 21, CMake 4.4.3, Ninja 1.13.2.
   Visual verification of the new idle pose was unavailable because macOS
   locked the session during inspection; exact original gait remains open.
 - Only macOS/system frameworks and libraries are linked by the native application.
+- A dedicated-project Ghidra read-only pass decompiled player movement
+  (0x6883D0), player locomotion selection (0x60A9C0), mouse follow camera
+  (0x50F970) and ped position update (0x5E1B10), with the executable MD5
+  verified before reading. The native player now defaults to `run_player`,
+  transitions to `WALK_player` while Option/ALT is held, and turns toward travel
+  over time. The play camera opens behind CJ, captures mouse orbit, releases
+  with Escape, and eases behind CJ during straight forward movement. The
+  source's `ShoulderBoneRotation` transform is applied to the breast bones.
+  All 11 non-GUI tests passed; a 45-frame real-asset Metal auto-run exited 0.
+  A live window showed the initial behind-CJ camera and successful forward run;
+  the automated ALT interaction did not complete, so visual transition and
+  exact original camera timing remain unverified.
 - GUI smoke initially aborted under restricted sandbox; passed with WindowServer access.
 
 The application is a development bootstrap; it does not run GTA gameplay.

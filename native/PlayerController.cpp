@@ -46,7 +46,12 @@ bool PlayerController::Step(float seconds,float worldX,float worldY,
     const float traveledX=position_[0]-original[0];
     const float traveledY=position_[1]-original[1];
     if (traveledX==0.0f && traveledY==0.0f) return false;
-    heading_=std::atan2(traveledY,traveledX);
+    // The original ped keeps desired and current rotations separately. Turn
+    // toward travel on the shortest arc instead of snapping to each new key.
+    const float desired=std::atan2(traveledY,traveledX);
+    const float difference=std::remainder(desired-heading_,2.0f*3.14159265358979323846f);
+    const float turn=std::clamp(difference,-4.0f*seconds,4.0f*seconds);
+    heading_=std::remainder(heading_+turn,2.0f*3.14159265358979323846f);
     return true;
 }
 

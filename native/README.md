@@ -74,16 +74,20 @@ Vehicle paint and otherwise
 white untextured materials use provisional tints; this is still a model viewer.
 `--player-preview` reads the five default CJ clothing meshes and TXDs from
 `models/player.img`; it shows a static textured pose without animation or input.
-`--play` combines those parts with the Grove Street region. WASD walks relative
-to camera yaw, and the camera follows CJ. The body faces the movement direction.
-The original `WALK_player` clip deforms the five body parts while walking.
+`--play` combines those parts with the Grove Street region. WASD moves relative
+to camera yaw, and the camera follows CJ. `run_player` drives ordinary movement;
+hold Option/ALT for `WALK_player`. CJ turns toward travel over time. The camera
+starts behind CJ, the captured mouse rotates it, Escape releases the cursor,
+and a click recaptures it. After mouse orbit stops, forward movement gradually
+brings the camera behind CJ again.
 `--auto-walk` drives the same controller along the road for visual diagnostics.
 Ground and basic COL box/sphere/triangle checks constrain movement. The volume
 probe can test a specific path against nearby instances of one model. Idle
 full contact response, jumping, vehicles, audio and missions are not
 implemented. Blocked diagonal walking can slide along an unblocked axis.
-The original `IDLE_stance` and `WALK_player` clips are blended during movement
-transitions.
+The original `IDLE_stance`, `WALK_player`, and `run_player` clips are blended
+during movement transitions. The original player shoulder adjustment is applied
+to the breast bones after pose evaluation.
 The IFP probe validates and decodes the original ANP3 ped animation frames;
 the walking clip now drives the player's skin in the renderer.
 

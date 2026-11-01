@@ -41,7 +41,7 @@ inline std::array<float,17> ProjectionParameters(const ModelBounds& bounds,
         const auto screen=project((*worldCenter)[0],(*worldCenter)[1],(*worldCenter)[2]);
         centerX=screen[0]; centerY=screen[1];
         scale=view.zoom*1.55f/((*worldCenter)[3]*3.0f);
-        const float distance=(closeCamera ? 7.0f : (*worldCenter)[3]*3.5f)/view.zoom;
+        const float distance=(closeCamera ? 5.0f : (*worldCenter)[3]*3.5f)/view.zoom;
         const float focal=closeCamera ? 1.55f : 1.55f*3.5f/3.0f;
         const float nearPlane=0.1f;
         const float farPlane=std::max(1000.0f,screen[2]+distance-minD+100.0f);

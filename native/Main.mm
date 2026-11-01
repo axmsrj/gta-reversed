@@ -1,4 +1,5 @@
 #import <Cocoa/Cocoa.h>
+#import <CoreGraphics/CoreGraphics.h>
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 
@@ -234,6 +235,29 @@ struct SkinCapture {
     rw::Matrix inverseAtomic{};
 };
 
+// CPed::ShoulderBoneRotation uses ZYX Tait-Bryan angles with SWAP_XZ and
+// halves the resulting X angle. In that convention X is the raw Z angle.
+void HalfShoulderX(rw::Matrix& matrix) {
+    constexpr float epsilon=0.0000019073486328125f;
+    const float cy=std::hypot(matrix.at.z,matrix.up.z);
+    const float x=cy>epsilon ? std::atan2(matrix.right.y,matrix.right.x) :
+        std::atan2(-matrix.up.x,matrix.up.y);
+    const float y=std::atan2(-matrix.right.z,cy);
+    const float z=cy>epsilon ? std::atan2(matrix.up.z,matrix.at.z)*0.5f : 0.0f;
+    const float sx=std::sin(x),cx=std::cos(x),sy=std::sin(y),cyy=std::cos(y);
+    const float sz=std::sin(z),cz=std::cos(z);
+    matrix.at.z=cyy*cz;
+    matrix.at.y=-cx*sz+cz*sx*sy;
+    matrix.at.x=sx*sz+cx*cz*sy;
+    matrix.up.z=cyy*sz;
+    matrix.up.y=cx*cz+sx*sy*sz;
+    matrix.up.x=-cz*sx+cx*sy*sz;
+    matrix.right.z=-sy;
+    matrix.right.y=cyy*sx;
+    matrix.right.x=cx*cyy;
+    matrix.flags=0;
+}
+
 std::vector<rw::Matrix> SkinMatrices(const SkinCapture& skin,
                                     const std::vector<gtasa::animation::BonePose>& pose,
                                     const std::vector<gtasa::animation::BonePose>& stancePose) {
@@ -262,6 +286,23 @@ std::vector<rw::Matrix> SkinMatrices(const SkinCapture& skin,
             throw std::runtime_error("Player skin bones are not parent ordered");
         rw::Matrix::mult(&world[i],&local,
             parent>=0 ? &world[parent] : &skin.rootParent[i]);
+    }
+    const auto shoulder=[&](int breastTag,int armTag,int clavicleTag) {
+        const auto index=[&](int tag) {
+            const auto found=std::find(skin.boneTags.begin(),skin.boneTags.end(),tag);
+            return found==skin.boneTags.end() ? -1 : int(found-skin.boneTags.begin());
+        };
+        const int breast=index(breastTag),arm=index(armTag),clavicle=index(clavicleTag);
+        if (breast<0 || arm<0 || clavicle<0) return;
+        rw::Matrix inverseClavicle,relative;
+        rw::Matrix::invert(&inverseClavicle,&world[clavicle]);
+        rw::Matrix::mult(&relative,&world[arm],&inverseClavicle);
+        HalfShoulderX(relative);
+        rw::Matrix::mult(&world[breast],&relative,&world[clavicle]);
+    };
+    shoulder(302,32,31);
+    shoulder(301,22,21);
+    for (std::size_t i=0;i<world.size();++i) {
         rw::Matrix inverse=skin.inverseBind[i],tmp;
         inverse.flags=0;
         rw::Matrix::mult(&tmp,&world[i],&skin.inverseAtomic);
@@ -707,11 +748,14 @@ int main(int argc, const char* argv[]) {
         std::optional<gtasa::native::PlayerController> player;
         std::vector<SkinCapture> playerSkins;
         std::optional<gtasa::animation::ClipPlayback> walkClip;
+        std::optional<gtasa::animation::ClipPlayback> runClip;
         std::optional<gtasa::animation::ClipPlayback> idleClip;
         std::vector<gtasa::animation::BonePose> stanceBasePose;
         float walkSeconds{};
+        float runSeconds{};
         float idleSeconds{};
         float walkBlend{};
+        float runBlend{1.0f};
         bool playerWalking{};
         std::size_t playerVertexFirst{},playerGroupFirst{};
         std::array<float,3> playerDrawPosition{};
@@ -782,6 +826,14 @@ int main(int argc, const char* argv[]) {
                         const auto walkingSpeed=walkClip->RootTravelSpeed();
                         if (!walkingSpeed || *walkingSpeed>10.0f)
                             throw std::runtime_error("Invalid WALK_player root travel speed");
+                        const auto run=std::find_if(ifp.clips.begin(),ifp.clips.end(),
+                            [](const auto& clip) { return clip.name=="run_player"; });
+                        if (run==ifp.clips.end())
+                            throw std::runtime_error("run_player absent from ped.ifp");
+                        runClip.emplace(ifpBytes,*run);
+                        const auto runningSpeed=runClip->RootTravelSpeed();
+                        if (!runningSpeed || *runningSpeed>10.0f)
+                            throw std::runtime_error("Invalid run_player root travel speed");
                         const auto idle=std::find_if(ifp.clips.begin(),ifp.clips.end(),
                             [](const auto& clip) { return clip.name=="IDLE_stance"; });
                         if (idle==ifp.clips.end())
@@ -833,7 +885,10 @@ int main(int argc, const char* argv[]) {
         std::vector<id<MTLTexture>> metalTextures;
         id<MTLSamplerState> sampler = nil;
         ViewControls viewControls;
-        if (options.play) viewControls.panY=-0.20f;
+        if (options.play) {
+            viewControls.yaw=-1.57079632679f; // initial camera behind +X facing CJ
+            viewControls.panY=-0.20f;
+        }
         ModelBounds modelBounds;
         std::vector<ModelBounds> groupBounds;
         std::vector<std::array<float,3>> groupCenters;
@@ -902,7 +957,10 @@ int main(int argc, const char* argv[]) {
                 std::vector<gtasa::animation::BonePose>{};
             const auto walkPose=walkClip ? walkClip->Sample(walkSeconds) :
                 std::vector<gtasa::animation::BonePose>{};
-            const auto pose=gtasa::animation::BlendPoses(idlePose,walkPose,walkBlend);
+            const auto runPose=runClip ? runClip->Sample(runSeconds) :
+                std::vector<gtasa::animation::BonePose>{};
+            const auto movingPose=gtasa::animation::BlendPoses(walkPose,runPose,runBlend);
+            const auto pose=gtasa::animation::BlendPoses(idlePose,movingPose,walkBlend);
             std::vector<std::vector<rw::Matrix>> skinMatrices;
             if (!pose.empty()) {
                 skinMatrices.reserve(playerSkins.size());
@@ -1048,6 +1106,7 @@ int main(int argc, const char* argv[]) {
         layer.opaque = YES;
         view.layer = layer;
         [window center];
+        window.acceptsMouseMovedEvents = options.play;
         [window makeKeyAndOrderFront:nil];
         [application activateIgnoringOtherApps:YES];
 
@@ -1057,6 +1116,9 @@ int main(int argc, const char* argv[]) {
         bool cameraDirty=false;
         auto loadedCenter=options.worldCenter;
         std::array<bool,4> movementHeld{}; // west, east, south, north
+        bool mouseCaptured=false;
+        bool captureRequested=options.play;
+        float cameraOrbitHold{};
 #ifdef GTASA_HAS_LIBRW
         std::future<Model> pendingWorld;
         std::optional<std::array<float,4>> loadingCenter;
@@ -1068,6 +1130,21 @@ int main(int argc, const char* argv[]) {
                 NSEvent* event;
                 while ((event = [application nextEventMatchingMask:NSEventMaskAny
                     untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES])) {
+                    if (options.play && event.type==NSEventTypeKeyDown &&
+                        event.keyCode==53) { // Escape releases the pointer.
+                        captureRequested=false;
+                        continue;
+                    }
+                    if (options.play && event.type==NSEventTypeLeftMouseDown &&
+                        !captureRequested) captureRequested=true;
+                    if (mouseCaptured && event.type==NSEventTypeMouseMoved) {
+                        viewControls.yaw+=float(event.deltaX)*0.0035f;
+                        viewControls.elevation=std::clamp(
+                            viewControls.elevation-float(event.deltaY)*0.0035f,0.08f,1.25f);
+                        cameraOrbitHold=1.2f;
+                        cameraDirty=true;
+                        continue;
+                    }
                     if (pipeline && event.type==NSEventTypeScrollWheel) {
                         viewControls.zoom=std::clamp(viewControls.zoom*(event.scrollingDeltaY>0 ? 1.10f : 0.90f),0.25f,8.0f);
                         cameraDirty=true;
@@ -1108,7 +1185,11 @@ int main(int argc, const char* argv[]) {
                         case 'l': viewControls.panX+=0.08f; break;
                         case 'i': viewControls.panY+=0.08f; break;
                         case 'k': viewControls.panY-=0.08f; break;
-                        case 'r': viewControls=ViewControls{}; break;
+                        case 'r':
+                            viewControls=ViewControls{};
+                            if (options.play && player)
+                                viewControls.yaw=player->Heading()-1.57079632679f;
+                            break;
                         default: handled=false; break;
                         }
                         if (handled) { cameraDirty=true; continue; }
@@ -1116,16 +1197,31 @@ int main(int argc, const char* argv[]) {
                     [application sendEvent:event];
                 }
                 [application updateWindows];
+                const bool shouldCapture=options.play && captureRequested &&
+                    !options.smokeFrames &&
+                    window.isKeyWindow && !delegate.shouldClose;
+                if (mouseCaptured!=shouldCapture) {
+                    CGAssociateMouseAndMouseCursorPosition(!shouldCapture);
+                    if (shouldCapture) [NSCursor hide]; else [NSCursor unhide];
+                    mouseCaptured=shouldCapture;
+                }
                 if (delegate.shouldClose) {
                     break;
                 }
                 const auto frameTime=std::chrono::steady_clock::now();
                 const auto timing=gameTimer.Tick(frameTime);
                 const float elapsed=static_cast<float>(std::min(timing.realSeconds,0.05));
+                cameraOrbitHold=std::max(0.0f,cameraOrbitHold-elapsed);
                 const auto movementStart=std::chrono::steady_clock::now();
                 if (!window.isKeyWindow) movementHeld.fill(false);
 #ifdef GTASA_HAS_LIBRW
                 playerWalking=false;
+                if (player && walkClip && runClip) {
+                    const float target=([NSEvent modifierFlags] & NSEventModifierFlagOption) ?
+                        0.0f : 1.0f;
+                    runBlend=std::clamp(runBlend+
+                        std::clamp(target-runBlend,-elapsed/0.18f,elapsed/0.18f),0.0f,1.0f);
+                }
 #endif
                 if (options.worldCenter) {
                     const float dx=options.autoWalk ? 1.0f :
@@ -1145,12 +1241,18 @@ int main(int argc, const char* argv[]) {
                                 return gtasa::collision::BlockedByWorldGeometry(
                                     *world,*collision,from,to);
                             };
-                            const auto travel=walkClip->RootTravelDistance(
+                            const auto walkTravel=walkClip->RootTravelDistance(
                                 walkSeconds,walkSeconds+elapsed);
-                            if (!travel) throw std::runtime_error("WALK_player has no root travel");
-                            if (player->Step(elapsed,worldX,worldY,ground,blocked,*travel)) {
+                            const auto runTravel=runClip->RootTravelDistance(
+                                runSeconds,runSeconds+elapsed);
+                            if (!walkTravel || !runTravel)
+                                throw std::runtime_error("Player locomotion clip has no root travel");
+                            const float travel=(1.0f-runBlend)*(*walkTravel)+
+                                               runBlend*(*runTravel);
+                            if (player->Step(elapsed,worldX,worldY,ground,blocked,travel)) {
                                 playerWalking=true;
                                 walkSeconds+=elapsed;
+                                runSeconds+=elapsed;
                                 const auto& position=player->Position();
                                 (*options.worldCenter)[0]=position[0];
                                 (*options.worldCenter)[1]=position[1];
@@ -1175,6 +1277,14 @@ int main(int argc, const char* argv[]) {
                     idleSeconds+=elapsed;
                     walkBlend=std::clamp(walkBlend+
                         (playerWalking ? 1.0f : -1.0f)*elapsed/0.18f,0.0f,1.0f);
+                    if (playerWalking && movementHeld[3] &&
+                        !movementHeld[0] && !movementHeld[1] && cameraOrbitHold==0.0f) {
+                        const float desired=player->Heading()-1.57079632679f;
+                        const float delta=std::remainder(desired-viewControls.yaw,
+                                                           6.28318530718f);
+                        viewControls.yaw+=std::clamp(delta,-2.0f*elapsed,2.0f*elapsed);
+                        cameraDirty=true;
+                    }
                 }
 #endif
                 const auto movementEnd=std::chrono::steady_clock::now();
@@ -1356,6 +1466,10 @@ int main(int argc, const char* argv[]) {
         }
         if (options.smokeFrames && presentedFrames != options.smokeFrames) {
             exitCode = 1;
+        }
+        if (mouseCaptured) {
+            CGAssociateMouseAndMouseCursorPosition(true);
+            [NSCursor unhide];
         }
         [window orderOut:nil];
         window.delegate = nil;

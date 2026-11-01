@@ -121,6 +121,28 @@ clothing pieces in the real-asset startup check. This does not prove exact
 RenderWare skinning parity. Raw ignored output:
 `local/ghidra/findings/animation_skin_headless.txt`.
 
+## Targeted player movement and camera inspection
+
+On 2026-11-01 a read-only headless run in the dedicated project again confirmed
+MD5 `2b5066bd4097ac2944ce6a9cf8fe5677`, x86:LE:32 and base 0x400000.
+The decompiler completed at 0x6883D0 (`CTaskSimplePlayerOnFoot::PlayerControlZelda`),
+0x60A9C0 (`CPlayerPed::SetRealMoveAnim`), 0x50F970
+(`CCam::Process_FollowPedWithMouse`) and 0x5E1B10 (`CPed::UpdatePosition`).
+At 0x6883D0 the input magnitude is formed from the two walking axes; a ped-walk
+flag caps it, the desired heading is derived relative to camera orientation,
+and the movement blend ratio is advanced by a timer-scaled bound before
+0x60A9C0 is called. The source provides readable names and the 0.07 timestep
+factor. At 0x60A9C0 the binary selects and blends locomotion associations;
+exact blend thresholds remain to be established. The camera routine is much
+larger and has not been mapped parameter by parameter. Native mouse orbit and
+follow behavior are therefore a bounded adaptation, not a parity claim.
+Raw ignored output: `local/ghidra/findings/movement_headless.txt` and
+`local/ghidra/findings/heading_headless.txt`.
+Another read-only decompile at 0x5DF560 confirms the player shoulder routine
+and its accesses to bone IDs 302 and 301; the readable matrix and Euler-angle
+sequence is in `source/game_sa/Entity/Ped/Ped.cpp::ShoulderBoneRotation`.
+Raw ignored output: `local/ghidra/findings/shoulder_headless.txt`.
+
 ## Remaining investigations
 
 Exact executable release/patch provenance; complete RW engine open/start and

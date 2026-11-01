@@ -13,7 +13,7 @@ int main() {
     assert(player.Heading()==0.0f);
     assert(player.Step(0.02f,1,1,flat));
     assert(player.Position()[0]>0.031f && player.Position()[1]>0.0f);
-    assert(std::abs(player.Heading()-0.7853982f)<1.0e-5f);
+    assert(std::abs(player.Heading()-0.08f)<1.0e-5f);
     const auto before=player.Position();
     const float heading=player.Heading();
     const auto gap=[](float,float,float) -> std::optional<float> { return {}; };
@@ -41,7 +41,11 @@ int main() {
     };
     assert(sliding.Step(0.02f,1,1,flat,verticalWall));
     assert(sliding.Position()[0]==0.0f && sliding.Position()[1]>0.0f);
+    assert(std::abs(sliding.Heading()-0.08f)<1.0e-5f);
+    for (int i=0;i<24;++i) assert(sliding.Step(0.02f,0,1,flat));
     assert(std::abs(sliding.Heading()-1.5707963f)<1.0e-5f);
+    assert(sliding.Step(0.02f,-1,0,flat));
+    assert(sliding.Heading()>1.5707963f); // shortest turn through +pi
     const auto noPath=[](std::array<float,3>,std::array<float,3>) { return true; };
     const auto stopped=sliding.Position();
     assert(!sliding.Step(0.02f,1,1,flat,noPath));
