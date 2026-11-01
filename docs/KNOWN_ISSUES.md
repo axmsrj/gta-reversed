@@ -30,7 +30,8 @@
   travel follows successive root samples from the loaded walk and run clips.
   The original player shoulder matrix adjustment is applied. Turn rate, clip
   blending and mouse camera follow are bounded adaptations; exact GTA timing,
-  camera collision and visual parity are still unverified. Other clips and
+  camera collision and visual parity are still unverified. ALT+W and W
+  produce distinct walk and run travel in a GUI diagnostic. Other clips and
   runtime clothing swaps are not implemented. The standalone player preview
   remains static.
 - IDE draw distances and flags are parsed but not yet applied to LOD and object

@@ -260,8 +260,15 @@ Commands: native/README.md. Apple Clang 21, CMake 4.4.3, Ninja 1.13.2.
   source's `ShoulderBoneRotation` transform is applied to the breast bones.
   All 11 non-GUI tests passed; a 45-frame real-asset Metal auto-run exited 0.
   A live window showed the initial behind-CJ camera and successful forward run;
-  the automated ALT interaction did not complete, so visual transition and
-  exact original camera timing remain unverified.
+  the first automated ALT interaction did not complete; the later diagnostic
+  below verified walk versus run travel. Exact original camera timing remains
+  unverified.
+- A cursor-free GUI diagnostic exposed that reading Option/ALT through the
+  global modifier snapshot kept the running gait. Input now records the
+  modifier from key and flags-change events. A one-second ALT+W press advanced
+  the displayed world-center X from 2489 to 2491, followed by one second of W
+  advancing it to 2497. The diagnostic run ended at its smoke time limit;
+  the separate 45-frame real-asset Metal smoke exited 0.
 - GUI smoke initially aborted under restricted sandbox; passed with WindowServer access.
 
 The application is a development bootstrap; it does not run GTA gameplay.

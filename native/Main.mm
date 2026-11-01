@@ -1116,6 +1116,7 @@ int main(int argc, const char* argv[]) {
         bool cameraDirty=false;
         auto loadedCenter=options.worldCenter;
         std::array<bool,4> movementHeld{}; // west, east, south, north
+        bool walkHeld=false;
         bool mouseCaptured=false;
         bool captureRequested=options.play;
         float cameraOrbitHold{};
@@ -1130,6 +1131,9 @@ int main(int argc, const char* argv[]) {
                 NSEvent* event;
                 while ((event = [application nextEventMatchingMask:NSEventMaskAny
                     untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES])) {
+                    if (options.play && (event.type==NSEventTypeFlagsChanged ||
+                        event.type==NSEventTypeKeyDown || event.type==NSEventTypeKeyUp))
+                        walkHeld=(event.modifierFlags & NSEventModifierFlagOption)!=0;
                     if (options.play && event.type==NSEventTypeKeyDown &&
                         event.keyCode==53) { // Escape releases the pointer.
                         captureRequested=false;
@@ -1213,12 +1217,14 @@ int main(int argc, const char* argv[]) {
                 const float elapsed=static_cast<float>(std::min(timing.realSeconds,0.05));
                 cameraOrbitHold=std::max(0.0f,cameraOrbitHold-elapsed);
                 const auto movementStart=std::chrono::steady_clock::now();
-                if (!window.isKeyWindow) movementHeld.fill(false);
+                if (!window.isKeyWindow) {
+                    movementHeld.fill(false);
+                    walkHeld=false;
+                }
 #ifdef GTASA_HAS_LIBRW
                 playerWalking=false;
                 if (player && walkClip && runClip) {
-                    const float target=([NSEvent modifierFlags] & NSEventModifierFlagOption) ?
-                        0.0f : 1.0f;
+                    const float target=walkHeld ? 0.0f : 1.0f;
                     runBlend=std::clamp(runBlend+
                         std::clamp(target-runBlend,-elapsed/0.18f,elapsed/0.18f),0.0f,1.0f);
                 }
