@@ -194,6 +194,13 @@ not adopted. The source and Ghidra routine at 0x5FE0E0 show that slope IK
 changes the feet only for nonzero slope pitch or roll; it does not account for
 flat-ground idle contact. These observations narrow the remaining work to
 animation-to-skeleton space conversion and faithful root placement.
+The next test kept the raw clip root quaternion, matching the RenderWare
+HAnim apply callback, and converted from the clip root basis to the DFF bind
+basis only after skinning. A 220-frame real-asset Metal run then measured at
+most 1.5 mm across X/Y and 0.6 mm vertically at fixed lowest shoe vertices.
+The controller remained stationary and the initial sole positions matched
+the earlier pose within about 1 mm. This supports output-space alignment;
+it does not establish full visual or gait parity.
 
 ## Targeted streaming inspection
 

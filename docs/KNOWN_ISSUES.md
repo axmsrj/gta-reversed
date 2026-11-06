@@ -21,8 +21,9 @@
   and material responses are not implemented. Catalog loading is eager, not
   spatially streamed.
 - CJ's original clothing pieces deform under `WALK_player` while moving and
-  `IDLE_stance` while stopped. The initial stance frame anchors the root
-  orientation, with a short spherical rotation blend at transitions. Child bone
+  `IDLE_stance` while stopped. The initial stance frame anchors the rendered
+  skinned output orientation while the clip root quaternion remains unchanged;
+  transitions use a short spherical rotation blend. Child bone
   positions come from inverse skin matrices and their rotations from the clip.
   Forward walk/run root travel is extracted into the controller; local root X/Z
   motion and idle root translation remain in the skin pose. Moving vertices are
@@ -34,9 +35,9 @@
   camera collision and visual parity are still unverified. Idle now avoids
   per-frame whole-body grounding changes, but original foot placement on
   uneven ground and visual parity still need verification. A 220-frame
-  flat-ground contact probe currently measures about 2 cm of horizontal
-  motion at fixed sole vertices despite a stationary controller; idle foot
-  planting remains unresolved.
+  flat-ground contact probe now measures at most 1.5 mm of horizontal
+  motion at fixed sole vertices while the controller is stationary. Visual
+  idle foot planting still needs direct comparison with the original game.
   ALT+W and W
   produce distinct walk and run travel in a GUI diagnostic. Other clips and
   runtime clothing swaps are not implemented. The standalone player preview

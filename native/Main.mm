@@ -266,6 +266,8 @@ std::vector<rw::Matrix> SkinMatrices(const SkinCapture& skin,
                                     float idleWeight=0.0f) {
     std::vector<rw::Matrix> world(skin.boneTags.size());
     std::vector<rw::Matrix> result(skin.boneTags.size());
+    rw::Matrix outputAlignment;
+    outputAlignment.setIdentity();
     for (std::size_t i=0;i<world.size();++i) {
         rw::Matrix local=skin.bindLocal[i];
         for (const auto& bone : pose) if (bone.boneTag==static_cast<std::uint32_t>(skin.boneTags[i])) {
@@ -277,7 +279,21 @@ std::vector<rw::Matrix> SkinMatrices(const SkinCapture& skin,
                 if (initial==stancePose.end()) break;
                 const rw::Quat q0{initial->rotation[0],initial->rotation[1],
                                   initial->rotation[2],initial->rotation[3]};
-                local.rotate(rw::mult(rw::inv(q0),q),rw::COMBINEPRECONCAT);
+                // RenderWare applies the clip quaternion directly. Align the
+                // resulting skinned geometry to the DFF's starting orientation
+                // after skinning, rather than changing the animated root basis.
+                rw::Matrix rawBase,rawWorld,desiredWorld,inverseRawWorld;
+                rw::Matrix rootCorrection,atomic,temporary;
+                rawBase.rotate(q0,rw::COMBINEREPLACE);
+                rawBase.pos=skin.bindLocal[i].pos;
+                rw::Matrix::mult(&rawWorld,&rawBase,&skin.rootParent[i]);
+                rw::Matrix::mult(&desiredWorld,&skin.bindLocal[i],&skin.rootParent[i]);
+                rw::Matrix::invert(&inverseRawWorld,&rawWorld);
+                rw::Matrix::mult(&rootCorrection,&inverseRawWorld,&desiredWorld);
+                rw::Matrix::invert(&atomic,&skin.inverseAtomic);
+                rw::Matrix::mult(&temporary,&atomic,&rootCorrection);
+                rw::Matrix::mult(&outputAlignment,&temporary,&skin.inverseAtomic);
+                local.rotate(q,rw::COMBINEREPLACE);
                 const auto idle=std::find_if(idlePose.begin(),idlePose.end(),
                     [&](const auto& candidate) { return candidate.boneTag==bone.boneTag; });
                 // Walk/run extract forward (Y) travel, but retain root X sway and Z.
@@ -318,6 +334,9 @@ std::vector<rw::Matrix> SkinMatrices(const SkinCapture& skin,
         inverse.flags=0;
         rw::Matrix::mult(&tmp,&world[i],&skin.inverseAtomic);
         rw::Matrix::mult(&result[i],&inverse,&tmp);
+        rw::Matrix adjusted;
+        rw::Matrix::mult(&adjusted,&result[i],&outputAlignment);
+        result[i]=adjusted;
     }
     return result;
 }

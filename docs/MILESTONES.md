@@ -285,6 +285,13 @@ Commands: native/README.md. Apple Clang 21, CMake 4.4.3, Ninja 1.13.2.
   callbacks 0x4D1680/0x4D1A50 and source flags established that walk/run
   extract Y travel while retaining local X and Z root motion. Native skinning
   now keeps those original components. Visual foot-contact parity is still open.
+- The native skinning path now applies the original root quaternion directly,
+  as the RenderWare HAnim callback does, then aligns the skinned output to the
+  DFF bind orientation. A 220-frame real-asset Metal idle run reduced fixed
+  sole-vertex motion from about 20 mm to at most 1.5 mm horizontally and
+  0.6 mm vertically without moving the controller. A 100-frame auto-walk
+  Metal smoke also exited 0. Direct visual comparison with the original game
+  remains open.
 - A cursor-free GUI diagnostic exposed that reading Option/ALT through the
   global modifier snapshot kept the running gait. Input now records the
   modifier from key and flags-change events. A one-second ALT+W press advanced
