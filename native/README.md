@@ -37,6 +37,7 @@ build/native/gta_sa_native.app/Contents/MacOS/gta_sa_native --assets "$GTA_SA_AS
 build/native/gta_sa_native.app/Contents/MacOS/gta_sa_native --assets "$GTA_SA_ASSET_DIR" --player-preview
 build/native/gta_sa_native.app/Contents/MacOS/gta_sa_native --assets "$GTA_SA_ASSET_DIR" --world-center 2489 -1668 13 80 --play
 build/native/gta_sa_native.app/Contents/MacOS/gta_sa_native --assets "$GTA_SA_ASSET_DIR" --world-center 2489 -1668 13 80 --play --auto-walk
+GTASA_IDLE_CONTACT_PROBE=1 build/native/gta_sa_native.app/Contents/MacOS/gta_sa_native --assets "$GTA_SA_ASSET_DIR" --world-center 2489 -1668 13 80 --play --smoke-frames 220
 build/native/gta_sa_ifp_probe "$GTA_SA_ASSET_DIR/anim/ped.ifp"
 build/native/gta_sa_rw_probe "$GTA_SA_ASSET_DIR/models/player.img" head.dff head.txd
 build/native/gta_sa_volume_probe "$GTA_SA_ASSET_DIR" DYN_F_R_WOOD_1b 2514 -1657 12.846 2514 -1651 12.846

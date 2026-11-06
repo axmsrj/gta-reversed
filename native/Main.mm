@@ -1020,6 +1020,39 @@ int main(int argc, const char* argv[]) {
                     gpu[i]=model.vertices[i];
                 }
             }
+            if (std::getenv("GTASA_IDLE_CONTACT_PROBE") && walkBlend==0.0f &&
+                playerSkins.size()>3) {
+                const auto& feet=playerSkins[3];
+                static std::array<std::size_t,2> contacts{};
+                static bool selected=false;
+                if (!selected) {
+                    std::array<float,2> lowest{INFINITY,INFINITY};
+                    for (std::size_t v=0;v<feet.vertices.size();++v) {
+                        const auto& influence=feet.vertices[v];
+                        for (int side=0;side<2;++side) {
+                            bool belongs=false;
+                            for (int joint=0;joint<4;++joint) {
+                                const int tag=feet.boneTags[influence.indices[joint]];
+                                belongs|=influence.weights[joint]>0.5f &&
+                                    tag>=(side ? 51 : 41) && tag<=(side ? 54 : 44);
+                            }
+                            const auto index=playerVertexFirst+feet.vertexFirst+v;
+                            if (belongs && model.vertices[index].z<lowest[side]) {
+                                lowest[side]=model.vertices[index].z;
+                                contacts[side]=index;
+                            }
+                        }
+                    }
+                    selected=std::isfinite(lowest[0]) && std::isfinite(lowest[1]);
+                }
+                if (!selected) throw std::runtime_error("Idle contact probe found no weighted sole vertices");
+                const auto& left=model.vertices[contacts[0]];
+                const auto& right=model.vertices[contacts[1]];
+                std::fprintf(stderr,
+                    "[idle-contact] time=%.6f player=%.6f,%.6f,%.6f left=%.6f,%.6f,%.6f right=%.6f,%.6f,%.6f\n",
+                    idleSeconds,position[0],position[1],position[2],
+                    left.x,left.y,left.z,right.x,right.y,right.z);
+            }
             for (std::size_t i=playerGroupFirst;i<model.groups.size();++i) {
                 const auto& group=model.groups[i];
                 auto& bounds=groupBounds[i];

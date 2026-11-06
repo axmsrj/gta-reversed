@@ -33,7 +33,10 @@
   blending and mouse camera follow are bounded adaptations; exact GTA timing,
   camera collision and visual parity are still unverified. Idle now avoids
   per-frame whole-body grounding changes, but original foot placement on
-  uneven ground and visual parity still need verification.
+  uneven ground and visual parity still need verification. A 220-frame
+  flat-ground contact probe currently measures about 2 cm of horizontal
+  motion at fixed sole vertices despite a stationary controller; idle foot
+  planting remains unresolved.
   ALT+W and W
   produce distinct walk and run travel in a GUI diagnostic. Other clips and
   runtime clothing swaps are not implemented. The standalone player preview

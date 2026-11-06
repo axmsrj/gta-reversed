@@ -185,6 +185,15 @@ idle run, the centers of vertices weighted to the two shoe bones moved about
 temporarily disabled, Y movement was about 0.9–1.0 cm and Z under 0.1 cm.
 The diagnostic was removed after measurement. These values do not prove
 original visual parity or eliminate perceived foot sliding.
+In a longer 220-frame idle probe, fixed vertices at the bottom of each shoe
+varied by roughly 0.9 cm in X, 2.0 cm in Y and 0.9 cm in Z while the controller
+position remained constant. Testing the opposite root-quaternion composition
+order left those ranges unchanged. Directly applying the clip root quaternion
+reduced the ranges to about 1–2 mm but displaced the starting pose, so it was
+not adopted. The source and Ghidra routine at 0x5FE0E0 show that slope IK
+changes the feet only for nonzero slope pitch or roll; it does not account for
+flat-ground idle contact. These observations narrow the remaining work to
+animation-to-skeleton space conversion and faithful root placement.
 
 ## Targeted streaming inspection
 
