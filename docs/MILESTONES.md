@@ -6,7 +6,7 @@
 | M1 | Acceptance criteria met on current host | ARM64 app, macOS 26 deployment target, Cocoa window, Metal on Apple M1, three frames and clean exit 0; no game exe dependency |
 | M2 | Started | Independent IMG directory and bounded entry reads; portable 50 Hz game timer with pause/time scale and bounded frame step; memory/config/engine initialization not migrated |
 | M3 | Started | Infernus geometry, three textures, four wheel instances and basic lighting drawn in Metal (3,822 triangles); full vehicle rules and world still required |
-| M4 | Started | Text IDE/IPL and binary IMG IPL catalog; 95-object Grove Street preview at radius 80 with nine LOD substitutes, bounds selection, perspective camera and continuous movement, background region reload with cancellation, bounded model cache, 16/32-bit and DXT decoding; GTA distance rules and fine-grained streaming still required |
+| M4 | Started | Text IDE/IPL and binary IMG IPL catalog; 165-object Grove Street preview at radius 80 with geometry bounds selection, perspective camera and continuous movement, background region reload with cancellation, bounded model cache, 16/32-bit and DXT decoding; GTA distance rules and fine-grained streaming still required |
 | M5 | Started | Bounded COL2/COL3 ground and box/sphere/triangle queries against real IPL placements; CJ's five original body parts render in Metal and blend `IDLE_stance` with `WALK_player`; simple axis sliding exists, while full pedestrian physics, other animations, vehicles and audio remain open |
 | M6 | Not started | Single-player gameplay not implemented |
 
@@ -300,5 +300,14 @@ Commands: native/README.md. Apple Clang 21, CMake 4.4.3, Ninja 1.13.2.
   (2601,-1503) loaded 51 objects and rendered 12,702 triangles across three
   frames with exit 0. All 11 non-GUI tests passed. This improves completeness
   but does not replace coarse region rebuilds with per-object streaming.
+- Removed the remaining fixed probe limits for objects outside the region whose
+  geometry reaches into it. The 160-unit candidate margin and geometry bounds
+  still bound selection. Grove Street at radius 80 examined 782 candidates,
+  rejected 573 by bounds and loaded 165 objects (54 terrain, 8 detail, 102 props,
+  1 LOD) with no missing or failed resources. With CJ, the scene held 31,364
+  triangles and 194 textures; three real-asset Metal frames exited 0. All 11
+  non-GUI tests passed. A second region at (2601,-1503) loaded 56 objects and
+  completed three Metal frames with exit 0. GTA draw-distance transitions and
+  per-object streaming remain open.
 
 The application is a development bootstrap; it does not run GTA gameplay.

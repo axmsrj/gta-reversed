@@ -13,10 +13,11 @@ finer sorting or order-independent transparency. The adapter handles DXT1–DXT5
 Metal mipmaps. Paint, glass and untextured white surfaces use provisional tints.
 A Grove Street preview at radius 80 uses IDE/IPL placements, props, alpha textures,
 geometry-bounds selection and a keyboard camera; its high-detail passes select 86 objects.
-The current Grove Street preview also has a bounded LOD fallback pass: when a
-linked low-detail target has no selected detailed child, it can fill the gap.
-With that pass, the same region loads 95 objects and 17,317 triangles. The
-transition still needs GTA distance rules and finer streaming.
+The Grove Street preview has a LOD fallback pass: when a linked low-detail
+target has no selected detailed child, it can fill the gap. The current radius
+80 scene loads 165 objects after geometry bounds selection across the full
+160-unit candidate margin. Transitions still need GTA distance rules and
+finer streaming.
 Holding Q/E/Z/C moves the focus continuously and triggers background region rebuilds.
 When a completed region is already at least 25 units behind the current focus,
 the app discards that scene and immediately requests the current region instead

@@ -627,8 +627,7 @@ Model BuildWorldModel(const gtasa::world::Region& world,
         };
         return dist(a)<dist(b);
     });
-    std::size_t loaded=0, missing=0, failed=0, edgeRejected=0, outsideProbed=0;
-    std::size_t outsideDetailProbed=0,outsideLodProbed=0;
+    std::size_t loaded=0, missing=0, failed=0, edgeRejected=0;
     std::array<std::size_t,4> loadedByPass{};
     std::unordered_set<std::int32_t> representedLods;
     // Load terrain first, then the detailed children of LOD buildings before
@@ -650,10 +649,6 @@ Model BuildWorldModel(const gtasa::world::Region& world,
         const double oy=double(instance->position[1])-center[1];
         const double oz=double(instance->position[2])-center[2];
         const bool originInside=ox*ox+oy*oy+oz*oz<=double(center[3])*center[3];
-        if (pass==2 && !originInside) continue;
-        if (pass==0 && !originInside && ++outsideProbed>128) break;
-        if (pass==1 && !originInside && ++outsideDetailProbed>128) break;
-        if (pass==3 && !originInside && ++outsideLodProbed>64) break;
         const auto& type=world.types.at(instance->modelId);
         if (pass!=3 && type.model.size()>=3 &&
             std::tolower(type.model[0])=='l' && std::tolower(type.model[1])=='o' &&

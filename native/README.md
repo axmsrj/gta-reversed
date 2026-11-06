@@ -52,8 +52,8 @@ The world probe combines text IDE/IPL files from `gta.dat` with binary `bnry` IP
 entries from `gta3.img`. `--world-center` selects nearby terrain, detailed
 objects and props without fixed per-category caps, then uses LOD substitutes
 where detail is unavailable. Geometry-bounds selection uses a 160-unit
-candidate margin; Grove Street at radius 80 loads 159 objects
-(30,586 triangles, 194 textures with CJ).
+candidate margin; Grove Street at radius 80 loads 165 objects
+(31,364 triangles, 194 textures with CJ).
 The preview uses a perspective camera; standalone model viewing remains orthographic.
 The world process also loads collision meshes from `gta3.img` and samples real
 ground height at the focus. In `--play`, it also constrains CJ's basic walking.
