@@ -1,4 +1,14 @@
+#ifdef GTASA_NATIVE
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+using uint32 = std::uint32_t;
+constexpr float PI = 3.14159265358979323846f;
+constexpr float TWO_PI = 2.0f * PI;
+#else
 #include "StdInc.h"
+#endif
 
 #include "Maths.h"
 
@@ -13,7 +23,11 @@
 // tests with 1e-5 tolerance.
 constexpr size_t SIN_LUT_SIZE = 256;
 constexpr float  SIN_LUT_STEP = TWO_PI / (float)(SIN_LUT_SIZE);
+#ifdef GTASA_NATIVE
+const auto SIN_LUT = []() {
+#else
 const auto& SIN_LUT = StaticRef<std::array<float, SIN_LUT_SIZE>>(0xBB3E00) = []() {
+#endif
     std::array<float, SIN_LUT_SIZE> lut{};
     for (size_t i = 0; i < SIN_LUT_SIZE; ++i) {
         lut[i] = std::sin((float)(i) * SIN_LUT_STEP);
@@ -30,7 +44,9 @@ float CMaths::GetCosFast(float rad) {
 }
 
 void CMaths::InitMathsTables() {
+#ifndef GTASA_NATIVE
     ZoneScoped;
+#endif
 
     /* No-op: The LUT is already populated by the static initializer above (originally it was
      * populated here at runtime using the MSVC 2004 CRT sin(), which differs from std::sin by
@@ -38,10 +54,12 @@ void CMaths::InitMathsTables() {
 }
 
 void CMaths::InjectHooks() {
+#ifndef GTASA_NATIVE
     RH_ScopedClass(CMaths);
     RH_ScopedCategoryGlobal();
 
     RH_ScopedInstall(InitMathsTables, 0x59AC90);
     RH_ScopedInstall(GetSinFast, 0x4A1340); // No callers in the game, inlined in every single instance
     RH_ScopedInstall(GetCosFast, 0x4A1360); // No callers in the game, inlined in every single instance
+#endif
 }

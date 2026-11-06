@@ -43,3 +43,14 @@ Every migrated subsystem needs an executable verification that exercises its
 real behavior. Keep Ghidra evidence and source correspondence in
 `GHIDRA_ANALYSIS.md`. Do not import the Windows executable as a runtime
 dependency, and do not introduce Wine, Rosetta, injection or open.mp work.
+
+## First compiled source boundary
+
+`source/game_sa/Maths.cpp` now builds unchanged in its math behavior for the
+native target. Its 256-entry sine table is stored in owned ARM64 memory
+instead of `StaticRef` at the original x86 address. Hook registration is
+excluded for the native build. `CGame::Init1` calls `CMaths::InitMathsTables`
+in the original source; the native bootstrap now calls that same source
+function. This establishes the compilation boundary, not a port of `CGame`
+or its loop. The next migration must move a substantive original subsystem
+and remove the corresponding preview implementation.

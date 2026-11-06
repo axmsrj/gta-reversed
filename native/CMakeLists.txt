@@ -19,6 +19,11 @@ if(GTASA_NATIVE_SANITIZERS)
 endif()
 
 add_executable(gta_sa_native MACOSX_BUNDLE Main.mm PlayerController.cpp)
+target_compile_definitions(gta_sa_native PRIVATE GTASA_NATIVE=1)
+add_library(gta_sa_source_math STATIC ../source/game_sa/Maths.cpp)
+target_compile_definitions(gta_sa_source_math PRIVATE GTASA_NATIVE=1)
+target_include_directories(gta_sa_source_math PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../source/game_sa")
+target_link_libraries(gta_sa_native PRIVATE gta_sa_source_math)
 target_compile_options(gta_sa_native PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 target_link_libraries(gta_sa_native PRIVATE "-framework Cocoa" "-framework Metal" "-framework QuartzCore")
 set_target_properties(gta_sa_native PROPERTIES
@@ -28,6 +33,10 @@ set_target_properties(gta_sa_native PROPERTIES
 
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(source_math_tests tests/SourceMathTests.cpp)
+    target_compile_definitions(source_math_tests PRIVATE GTASA_NATIVE=1)
+    target_link_libraries(source_math_tests PRIVATE gta_sa_source_math)
+    add_test(NAME original_source_math_behavior COMMAND source_math_tests)
     add_executable(player_controller_tests tests/PlayerControllerTests.cpp PlayerController.cpp)
     target_include_directories(player_controller_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
     add_test(NAME player_controller_behavior COMMAND player_controller_tests)

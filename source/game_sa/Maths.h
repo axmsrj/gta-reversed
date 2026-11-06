@@ -1,5 +1,7 @@
 #pragma once
+#ifndef GTASA_NATIVE
 #include <common.h>
+#endif
 
 class CMaths {
 public:

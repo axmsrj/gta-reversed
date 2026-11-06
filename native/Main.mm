@@ -27,6 +27,7 @@
 #include "Camera.h"
 #include "GameTimer.h"
 #include "PlayerController.h"
+#include "Maths.h"
 #include <array>
 #include <cstring>
 #ifdef GTASA_HAS_LIBRW
@@ -751,6 +752,7 @@ int main(int argc, const char* argv[]) {
     }
     @autoreleasepool {
         Log("Starting ARM64 native renderer");
+        CMaths::InitMathsTables();
         NSApplication* application = [NSApplication sharedApplication];
         [application setActivationPolicy:NSApplicationActivationPolicyRegular];
         [application finishLaunching];
