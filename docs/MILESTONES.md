@@ -1,5 +1,11 @@
 # Milestone status
 
+These milestones record bootstrap and preview experiments. They do not show
+that the original game systems have been ported. The next implementation track
+compiles and migrates reusable `source/` game systems directly, as described
+in [DIRECT_SOURCE_PORT.md](DIRECT_SOURCE_PORT.md); the preview is a validation
+harness, not the product architecture.
+
 | Milestone | Status | Verified result / remaining work |
 |---|---|---|
 | M0 | Initial audit performed; open findings remain | Source, binary startup, directory behavior and librw code inspected; exact release provenance and deeper dependencies remain open |

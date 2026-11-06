@@ -1,5 +1,10 @@
 # Native port architecture — preliminary M0 audit
 
+The implementation direction is now a direct port of the reusable
+`gta-reversed` game systems. The separate `native/` executable remains a
+bootstrap and validation harness, not the intended gameplay implementation.
+See [DIRECT_SOURCE_PORT.md](DIRECT_SOURCE_PORT.md) for the migration order.
+
 Audited baseline: `937d7a5e748c9bcca56c52c3fb0a2ea99630bc4e`, 2026-10-25.
 M0 has remaining open findings. The native bootstrap builds and runs; gameplay is not integrated.
 
@@ -40,12 +45,11 @@ archives without launching the graphical application. Build/test: native/README.
 
 ## Extraction boundaries
 
-Keep upstream source intact. Maintain the separate native C++20 / Objective-C++ target
-with explicit sources and Cocoa/Metal platform services. Native Cocoa is a viable
-bootstrap alternative to SDL3 because it needs no downloaded dependency and exposes
-CAMetalLayer directly; input portability must be revisited before gameplay.
-Migrate one tested leaf at a time with owned state and explicit interfaces.
-Do not include StdInc or address-based globals in the native target.
+Keep upstream source behavior as the reference. Bring reusable source files into
+an explicit native C++20 / Objective-C++ target with Cocoa/Metal platform
+services. Replace binary-backed globals and calls with owned state and native
+implementations at the subsystem boundary. Do not link address-based globals
+or calls into the native target.
 
 Dependency graph (source-derived): native entry → platform/logging → renderer;
 engine entry → memory/files/CdStream/input → RW engine/plugins/device →
