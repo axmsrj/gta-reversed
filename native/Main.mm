@@ -23,6 +23,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include "world/Placement.h"
+#include "world/Visibility.h"
 #include "Camera.h"
 #include "GameTimer.h"
 #include "PlayerController.h"
@@ -650,6 +651,10 @@ Model BuildWorldModel(const gtasa::world::Region& world,
         const double oz=double(instance->position[2])-center[2];
         const bool originInside=ox*ox+oy*oy+oz*oz<=double(center[3])*center[3];
         const auto& type=world.types.at(instance->modelId);
+        const auto drawOrigin=instance->lodTarget>=0 ?
+            world.instances[instance->lodTarget].position : instance->position;
+        if (!gtasa::world::WithinLoadedDrawDistance(type.drawDistance,
+                {center[0],center[1],center[2]},drawOrigin)) continue;
         if (pass!=3 && type.model.size()>=3 &&
             std::tolower(type.model[0])=='l' && std::tolower(type.model[1])=='o' &&
             std::tolower(type.model[2])=='d') continue;

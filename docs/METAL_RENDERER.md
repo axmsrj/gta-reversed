@@ -15,9 +15,9 @@ A Grove Street preview at radius 80 uses IDE/IPL placements, props, alpha textur
 geometry-bounds selection and a keyboard camera; its high-detail passes select 86 objects.
 The Grove Street preview has a LOD fallback pass: when a linked low-detail
 target has no selected detailed child, it can fill the gap. The current radius
-80 scene loads 165 objects after geometry bounds selection across the full
-160-unit candidate margin. Transitions still need GTA distance rules and
-finer streaming.
+80 scene loads 159 objects after geometry bounds and IDE draw-distance
+selection across the full 160-unit candidate margin. Distance alpha fades and
+finer streaming remain open.
 Holding Q/E/Z/C moves the focus continuously and triggers background region rebuilds.
 When a completed region is already at least 25 units behind the current focus,
 the app discards that scene and immediately requests the current region instead

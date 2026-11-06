@@ -1,4 +1,5 @@
 #include "Placement.h"
+#include "Visibility.h"
 
 #include <cassert>
 #include <filesystem>
@@ -17,6 +18,11 @@ static void PutFloat(std::vector<std::uint8_t>& bytes, std::size_t offset, float
 
 int main(int argc, const char* argv[]) {
     assert(argc == 2);
+    const std::array<float,3> origin{0,0,0};
+    assert(gtasa::world::WithinLoadedDrawDistance(80.0f,{99,0,0},origin));
+    assert(!gtasa::world::WithinLoadedDrawDistance(80.0f,{100,0,0},origin));
+    assert(gtasa::world::WithinLoadedDrawDistance(400.0f,{100,0,0},origin));
+    assert(!gtasa::world::WithinLoadedDrawDistance(80.0f,{80,70,0},origin));
     const std::filesystem::path root=argv[1];
     std::filesystem::create_directories(root / "Data/Maps/LA");
     const auto ide=root / "Data/Maps/LA/Block.IDE";

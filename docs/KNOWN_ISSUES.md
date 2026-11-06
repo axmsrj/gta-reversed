@@ -38,9 +38,11 @@
   produce distinct walk and run travel in a GUI diagnostic. Other clips and
   runtime clothing swaps are not implemented. The standalone player preview
   remains static.
-- IDE draw distances and flags are parsed but not yet applied to LOD and object
-  selection; IPL LOD relationships are resolved, duplicate targets suppressed and
-  unrepresented targets can fill gaps. GTA distance transitions are not implemented.
+- IDE draw distances now bound loaded object selection with the original
+  20-unit fade band; flags and distance alpha transitions are not yet applied.
+  IPL LOD relationships are resolved, duplicate targets suppressed and
+  unrepresented targets can fill gaps. Selection currently uses region focus
+  instead of the exact camera position.
   The preview still uses provisional model-ID buckets and a 160-unit candidate
   margin; it checks candidate geometry bounds without fixed probe limits.
 - The world preview has a provisional perspective camera with near/far clipping;
